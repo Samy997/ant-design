@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { NzNotificationService } from 'ng-zorro-antd';
 import { ProductsService } from 'src/app/services/products.service';
 
 export interface Data {
@@ -24,7 +25,10 @@ export class ProductsComponent implements OnInit {
 
   products = [];
 
-  constructor(private productsService: ProductsService) {}
+  constructor(
+    private productsService: ProductsService,
+    private nzNotificationService: NzNotificationService
+  ) {}
 
   ngOnInit(): void {
     this.getProducts();
@@ -32,6 +36,7 @@ export class ProductsComponent implements OnInit {
 
   private getProducts(): void {
     this.products = this.productsService.Products;
+    this.listOfData = [...this.products];
   }
 
   updateCheckedSet(id: number, checked: boolean): void {
@@ -71,16 +76,26 @@ export class ProductsComponent implements OnInit {
     this.refreshCheckedStatus();
   }
 
-  sendRequest(): void {
+  removeProduct(): void {
     this.loading = true;
-    const requestData = this.listOfData.filter((data) =>
+
+    const index = this.listOfData.findIndex((data) =>
       this.setOfCheckedId.has(data.id)
     );
-    console.log(requestData);
-    setTimeout(() => {
-      this.setOfCheckedId.clear();
-      this.refreshCheckedStatus();
-      this.loading = false;
-    }, 1000);
+
+    if (index > -1) {
+      setTimeout(() => {
+        this.products.splice(index, 1);
+        this.listOfData = [...this.products];
+
+        this.nzNotificationService.create(
+          'success',
+          'Deleted',
+          'Product Was Deleted Successfully'
+        );
+
+        this.loading = false;
+      }, 1000);
+    }
   }
 }
