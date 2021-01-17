@@ -1,14 +1,22 @@
 <div class="send-request">
-  <button
-    nz-button
-    nzType="danger"
-    [disabled]="setOfCheckedId.size === 0"
-    [nzLoading]="loading"
-    (click)="removeProduct()"
-  >
-    Remove Product
-  </button>
-  <span>Selected {{ setOfCheckedId.size }} items</span>
+  <div class="left-section">
+    <button
+      nz-button
+      nzType="danger"
+      [disabled]="setOfCheckedId.size === 0"
+      [nzLoading]="loading"
+      (click)="removeProduct()"
+    >
+      Remove Product
+    </button>
+    <span>Selected {{ setOfCheckedId.size }} items</span>
+  </div>
+  <div class="right-section text-right">
+    <button (click)="addProduct()" nz-button nzType="primary">
+      <i nz-icon nzType="plus" nzTheme="outline"></i>
+      Add
+    </button>
+  </div>
 </div>
 <nz-table
   #rowSelectionTable
@@ -43,9 +51,14 @@
       <td>{{ data.quantity }}</td>
       <td>{{ data.expire_date | date }}</td>
       <td>
-        <i class="clickable" nz-icon nzType="edit" nzTheme="twotone"></i>
         <i
-          class="clickable"
+          class="clickable btn btn-mr"
+          nz-icon
+          nzType="edit"
+          nzTheme="twotone"
+        ></i>
+        <i
+          class="clickable btn"
           nz-icon
           nzType="delete"
           nzTheme="twotone"

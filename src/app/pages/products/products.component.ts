@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { NzNotificationService } from 'ng-zorro-antd';
+import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { ProductsService } from 'src/app/services/products.service';
+import { ProductEditorComponent } from './product-editor/product-editor.component';
 
 export interface Data {
   id: number;
@@ -27,7 +28,9 @@ export class ProductsComponent implements OnInit {
 
   constructor(
     private productsService: ProductsService,
-    private nzNotificationService: NzNotificationService
+    private nzNotificationService: NzNotificationService,
+    private nzModalService: NzModalService,
+    private VCR: ViewContainerRef
   ) {}
 
   ngOnInit(): void {
@@ -74,6 +77,15 @@ export class ProductsComponent implements OnInit {
       .filter(({ disabled }) => !disabled)
       .forEach(({ id }) => this.updateCheckedSet(id, checked));
     this.refreshCheckedStatus();
+  }
+
+  addProduct(): void {
+    this.nzModalService.create({
+      nzTitle: 'Add Product',
+      nzContent: ProductEditorComponent,
+      nzViewContainerRef: this.VCR,
+      nzComponentParams: {},
+    });
   }
 
   removeProduct(): void {

@@ -1,16 +1,29 @@
 .send-request {
   margin-bottom: 16px;
+  display: flex;
+
+  span {
+    margin-left: 8px;
+  }
+
+  & > div {
+    width: 50%;
+  }
 }
 
-.send-request span {
-  margin-left: 8px;
+.btn {
+  margin-right: 6px;
+  font-size: 24px;
 }
 
 .clickable {
   cursor: pointer;
 }
 
-.anticon {
-  margin-right: 6px;
-  font-size: 24px;
+.btn-mr {
+  margin-right: 1rem;
+}
+
+.text-right {
+  text-align: right;
 }

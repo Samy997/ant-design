@@ -8,6 +8,7 @@ import {
   DashboardOutline,
   EditTwoTone,
   DeleteTwoTone,
+  PlusOutline,
 } from '@ant-design/icons-angular/icons';
 
 const icons = [
@@ -17,6 +18,7 @@ const icons = [
   FormOutline,
   EditTwoTone,
   DeleteTwoTone,
+  PlusOutline,
 ];
 
 @NgModule({
