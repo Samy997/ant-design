@@ -1,15 +1,8 @@
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
+import { IProduct } from 'src/app/models/product.model';
 import { ProductsService } from 'src/app/services/products.service';
 import { ProductEditorComponent } from './product-editor/product-editor.component';
-
-export interface Data {
-  id: number;
-  name: string;
-  age: number;
-  address: string;
-  disabled: boolean;
-}
 
 @Component({
   selector: 'app-products',
@@ -20,11 +13,11 @@ export class ProductsComponent implements OnInit {
   checked = false;
   loading = false;
   indeterminate = false;
-  listOfData: Data[] = [];
-  listOfCurrentPageData: Data[] = [];
+  listOfData: IProduct[] = [];
+  listOfCurrentPageData: IProduct[] = [];
   setOfCheckedId = new Set<number>();
 
-  products = [];
+  // products: IProduct[] = [];
 
   constructor(
     private productsService: ProductsService,
@@ -38,8 +31,7 @@ export class ProductsComponent implements OnInit {
   }
 
   private getProducts(): void {
-    this.products = this.productsService.Products;
-    this.listOfData = [...this.products];
+    this.listOfData = this.productsService.Products;
   }
 
   updateCheckedSet(id: number, checked: boolean): void {
@@ -50,64 +42,82 @@ export class ProductsComponent implements OnInit {
     }
   }
 
-  onCurrentPageDataChange(listOfCurrentPageData: Data[]): void {
+  onCurrentPageDataChange(listOfCurrentPageData: IProduct[]): void {
     this.listOfCurrentPageData = listOfCurrentPageData;
-    this.refreshCheckedStatus();
-  }
-
-  refreshCheckedStatus(): void {
-    const listOfEnabledData = this.listOfCurrentPageData.filter(
-      ({ disabled }) => !disabled
-    );
-    this.checked = listOfEnabledData.every(({ id }) =>
-      this.setOfCheckedId.has(id)
-    );
-    this.indeterminate =
-      listOfEnabledData.some(({ id }) => this.setOfCheckedId.has(id)) &&
-      !this.checked;
   }
 
   onItemChecked(id: number, checked: boolean): void {
     this.updateCheckedSet(id, checked);
-    this.refreshCheckedStatus();
   }
 
   onAllChecked(checked: boolean): void {
-    this.listOfCurrentPageData
-      .filter(({ disabled }) => !disabled)
-      .forEach(({ id }) => this.updateCheckedSet(id, checked));
-    this.refreshCheckedStatus();
+    this.listOfCurrentPageData.forEach(({ id }) =>
+      this.updateCheckedSet(id, checked)
+    );
   }
 
   addProduct(): void {
-    this.nzModalService.create({
+    const modal = this.nzModalService.create({
       nzTitle: 'Add Product',
       nzContent: ProductEditorComponent,
       nzViewContainerRef: this.VCR,
-      nzComponentParams: {},
+      nzComponentParams: {
+        latestId: this.listOfData[this.listOfData.length - 1]?.id + 1,
+      },
+    });
+
+    modal.afterClose.subscribe((result: IProduct) => {
+      this.listOfData = [result, ...this.listOfData];
+      this.onCurrentPageDataChange(this.listOfData);
     });
   }
 
-  removeProduct(): void {
+  editProduct(productData: IProduct): void {
+    const modal = this.nzModalService.create({
+      nzTitle: 'Edit Product',
+      nzContent: ProductEditorComponent,
+      nzViewContainerRef: this.VCR,
+      nzComponentParams: {
+        productData,
+      },
+    });
+
+    modal.afterClose.subscribe((result: IProduct) => {
+      const index = this.getProductIndex(result.id);
+      this.listOfData[index] = result;
+      this.listOfData = [...this.listOfData];
+      this.onCurrentPageDataChange(this.listOfData);
+    });
+  }
+
+  removeProducts(): void {
     this.loading = true;
 
-    const index = this.listOfData.findIndex((data) =>
-      this.setOfCheckedId.has(data.id)
-    );
+    this.setOfCheckedId.forEach((id) => this.remove(id));
+
+    this.setOfCheckedId.clear();
+
+    this.loading = false;
+  }
+
+  remove(id: number): void {
+    const index = this.getProductIndex(id);
 
     if (index > -1) {
-      setTimeout(() => {
-        this.products.splice(index, 1);
-        this.listOfData = [...this.products];
+      const deletedProduct = this.listOfData.splice(index, 1)[0];
+      this.listOfData = [...this.listOfData];
 
-        this.nzNotificationService.create(
-          'success',
-          'Deleted',
-          'Product Was Deleted Successfully'
-        );
+      this.nzNotificationService.create(
+        'success',
+        'Deleted',
+        `${deletedProduct.name} Was Deleted Successfully!`
+      );
 
-        this.loading = false;
-      }, 1000);
+      this.onCurrentPageDataChange(this.listOfData);
     }
+  }
+
+  private getProductIndex(id: number): number {
+    return this.listOfData.findIndex((product) => product.id === id);
   }
 }

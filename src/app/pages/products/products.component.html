@@ -5,9 +5,9 @@
       nzType="danger"
       [disabled]="setOfCheckedId.size === 0"
       [nzLoading]="loading"
-      (click)="removeProduct()"
+      (click)="removeProducts()"
     >
-      Remove Product
+      {{ "Remove Product" + (setOfCheckedId.size > 1 ? "s" : "") }}
     </button>
     <span>Selected {{ setOfCheckedId.size }} items</span>
   </div>
@@ -43,7 +43,6 @@
     <tr *ngFor="let data of rowSelectionTable.data">
       <td
         [nzChecked]="setOfCheckedId.has(data.id)"
-        [nzDisabled]="data.disabled"
         (nzCheckedChange)="onItemChecked(data.id, $event)"
       ></td>
       <td>{{ data.name }}</td>
@@ -54,12 +53,14 @@
         <i
           class="clickable btn btn-mr"
           nz-icon
+          (click)="editProduct(data)"
           nzType="edit"
           nzTheme="twotone"
         ></i>
         <i
           class="clickable btn"
           nz-icon
+          (click)="remove(data.id)"
           nzType="delete"
           nzTheme="twotone"
           [nzTwotoneColor]="'red'"
