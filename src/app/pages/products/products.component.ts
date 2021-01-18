@@ -16,6 +16,7 @@ export class ProductsComponent implements OnInit {
   listOfData: IProduct[] = [];
   listOfCurrentPageData: IProduct[] = [];
   setOfCheckedId = new Set<number>();
+  currentDate = new Date();
 
   // products: IProduct[] = [];
 
@@ -31,7 +32,10 @@ export class ProductsComponent implements OnInit {
   }
 
   private getProducts(): void {
-    this.listOfData = this.productsService.Products;
+    this.listOfData = this.productsService.Products.map((product) => ({
+      ...product,
+      expire_date: new Date(product.expire_date),
+    }));
   }
 
   updateCheckedSet(id: number, checked: boolean): void {
@@ -67,8 +71,10 @@ export class ProductsComponent implements OnInit {
     });
 
     modal.afterClose.subscribe((result: IProduct) => {
-      this.listOfData = [result, ...this.listOfData];
-      this.onCurrentPageDataChange(this.listOfData);
+      if (result) {
+        this.listOfData = [result, ...this.listOfData];
+        this.onCurrentPageDataChange(this.listOfData);
+      }
     });
   }
 
@@ -83,10 +89,12 @@ export class ProductsComponent implements OnInit {
     });
 
     modal.afterClose.subscribe((result: IProduct) => {
-      const index = this.getProductIndex(result.id);
-      this.listOfData[index] = result;
-      this.listOfData = [...this.listOfData];
-      this.onCurrentPageDataChange(this.listOfData);
+      if (result) {
+        const index = this.getProductIndex(result.id);
+        this.listOfData[index] = result;
+        this.listOfData = [...this.listOfData];
+        this.onCurrentPageDataChange(this.listOfData);
+      }
     });
   }
 
